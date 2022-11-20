@@ -2,12 +2,11 @@ import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -31,6 +30,8 @@ suspend fun main() = coroutineScope {
      */
     val idList: MutableSet<Int> = mutableSetOf()
 
+    val logger = LoggerFactory.getLogger(javaClass)
+
     /**
      * read config
      */
@@ -45,7 +46,7 @@ suspend fun main() = coroutineScope {
             }
         }
     } catch (e: IOException) {
-        e.printStackTrace()
+        logger.error(e.message)
     }
 
     val client = HttpClient(OkHttp) {
@@ -60,7 +61,7 @@ suspend fun main() = coroutineScope {
     val reader = launch{
         for(i in 1..rCount){
             val id = idList.random()
-            println("r $i")
+            logger.info("getAmount($id)")
             client.get("http://localhost:8080/account/$id")
         }
     }
@@ -71,7 +72,7 @@ suspend fun main() = coroutineScope {
     val writer = launch{
         for(i in 1..wCount){
             val id = idList.random()
-            println("w $i")
+            logger.info("addAmount($id)")
             client.post("http://localhost:8080/account") {
                 contentType(ContentType.Application.Json)
                 setBody(AddAmountRs(id, Random(1000).nextLong()))
