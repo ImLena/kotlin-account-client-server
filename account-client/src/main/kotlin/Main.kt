@@ -56,17 +56,6 @@ suspend fun main() = coroutineScope {
     }
 
     /**
-     * getAmount client job
-     */
-    val reader = launch{
-        for(i in 1..rCount){
-            val id = idList.random()
-            logger.info("getAmount($id)")
-            client.get("http://localhost:8080/account/$id")
-        }
-    }
-
-    /**
      * addAmount client job
      */
     val writer = launch{
@@ -80,7 +69,18 @@ suspend fun main() = coroutineScope {
         }
     }
 
-    reader.join()
+    /**
+     * getAmount client job
+     */
+    val reader = launch{
+        for(i in 1..rCount){
+            val id = idList.random()
+            logger.info("getAmount($id)")
+            client.get("http://localhost:8080/account/$id")
+        }
+    }
+
     writer.join()
+    reader.join()
     client.close()
 }

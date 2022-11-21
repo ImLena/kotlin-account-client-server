@@ -12,7 +12,6 @@ class AccountServiceImpl(val accountRepository: AccountRepository) : AccountServ
 
     @CacheEvict(value = ["accounts"], allEntries = true)
     override fun getAmount(id: Int): Long {
-        println("client!")
         if (accountRepository.existsById(id)) {
             return accountRepository.getReferenceById(id).value
         } else throw NullPointerException()
